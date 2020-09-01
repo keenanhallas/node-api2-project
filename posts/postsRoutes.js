@@ -70,7 +70,28 @@ router.post("/", (req, res) => {
 
 //Post a comment
 router.post("/:id/comments", (req, res) => {
-
+    const id = Number(req.params.id);
+    const comment = req.body;
+    console.log(comment);
+    db.findById(id)
+        .then(response => {
+            if(response.length === 0) {
+                res.status(404).json({ message: "The post with the specified ID does not exist." });
+            }
+        })
+        .catch(err => {
+            res.status(500).json({ error: "The comments information could not be retrieved." });
+        });
+    if (!comment.text) {
+        res.status(400).json({ errorMessage: "Please provide text for the comment." });
+    }
+    db.insertComment(comment)
+        .then(response => {
+            res.status(201).json(response);
+        })
+        .catch(err => {
+            res.status(500).json({ error: "There was an error while saving the comment to the database" });
+        });
 });
 
 //Edit a post
