@@ -73,7 +73,6 @@ router.post("/", (req, res) => {
 router.post("/:id/comments", (req, res) => {
     const id = Number(req.params.id);
     const comment = req.body;
-    //need to add a comment post id here
     comment.post_id = id;
     db.findById(id)
         .then(response => {
@@ -98,7 +97,27 @@ router.post("/:id/comments", (req, res) => {
 
 //Edit a post
 router.put("/:id", (req, res) => {
-
+    const id = Number(req.params.id);
+    post = req.body;
+    if (!post.title || !post.contents) {
+        res.status(400).json({ errorMessage: "Please provide title and contents for the post." });
+    };
+    db.findById(id)
+        .then(response => {
+            if(response.length === 0) {
+                res.status(404).json({ message: "The post with the specified ID does not exist." });
+            }
+        })
+        .catch(err => {
+            res.status(500).json({ error: "The post information could not be modified." });
+        });
+    db.update(id, post)
+        .then(response => {
+            res.status(200).json(response);
+        })
+        .catch(err => {
+            es.status(500).json({ error: "The post information could not be modified." });
+        });
 });
 
 //Delete a post
